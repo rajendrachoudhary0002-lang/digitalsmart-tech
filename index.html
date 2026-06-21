@@ -1,4 +1,4 @@
-```ht<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
@@ -41,7 +41,7 @@
 
         <div class="p-6">
             <div id="step1">
-                <p class="text-sm text-gray-600 mb-4 font-medium">Bas 1-2 words dalein (jaise: best marketing, great service), aur magic dekhein! 🤖</p>
+                <p class="text-sm text-gray-600 mb-4 font-medium">Bas 1-2 words dalein (jaise: best service, good pricing, fast SMS), aur magic dekhein! 🤖</p>
                 <div class="relative mb-5">
                     <input type="text" id="keywords" class="w-full pl-4 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition shadow-sm text-lg" placeholder="Aapko hamari service kaisi lagi?..." autocomplete="off">
                 </div>
@@ -52,7 +52,7 @@
 
             <div id="loadingState" class="hidden py-8 text-center flex flex-col items-center">
                 <div class="loader mb-4"></div>
-                <p class="text-blue-600 font-semibold animate-pulse">Review taiyar ho raha hai...</p>
+                <p class="text-blue-600 font-semibold animate-pulse">Smart Review taiyar ho raha hai...</p>
             </div>
 
             <div id="step2" class="hidden animate-fade-in-up">
@@ -80,7 +80,7 @@
             </div>
             
             <div id="errorMsg" class="hidden mt-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg text-center font-medium">
-                Internet issue ya API error. Please thodi der baad try karein.
+                Kuch technical issue hai. Please thodi der baad try karein.
             </div>
         </div>
     </div>
@@ -105,31 +105,61 @@
     </div>
 
     <script>
-        // Yahan maine ek public test API key laga di hai taaki tiiny host par bhi chal jaye
-        // Note: Ye ek general fallback key ki tarah kaam karegi.
-        const apiKey = ""; 
+        const MY_REAL_GOOGLE_LINK = "https://g.page/r/Ce_K4CGyVqL0EBM/review"; 
         let qrGenerated = false;
 
-        const MY_REAL_GOOGLE_LINK = "https://g.page/r/Ce_K4CGyVqL0EBM/review"; 
-        
-        async function fetchWithRetry(url, options, maxRetries = 3) {
-            let delays = [1000, 2000, 4000];
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return await response.json();
-                } catch (e) {
-                    if (i === maxRetries - 1) throw e;
-                    await new Promise(res => setTimeout(res, delays[i]));
+        // SMART LOCAL AI BRAIN
+        function smartOfflineAI(keywords) {
+            // Aapki sabhi services ki list
+            const services = [
+                "Bulk SMS", "Bulk Voice", "IVR", "Tollfree Number",
+                "Misscall Service", "Meta WhatsApp API", "Virtual Bulk WhatsApp",
+                "Digital Marketing", "SEO", "SMO", "GMB"
+            ];
+
+            let lowerKey = keywords.toLowerCase();
+            let matchedService = null;
+
+            // Check if user directly typed a service name
+            for (let s of services) {
+                if (lowerKey.includes(s.toLowerCase())) {
+                    matchedService = s;
+                    break;
                 }
+            }
+
+            // Pick a random service just in case user typed generic words like "best"
+            let randomService = services[Math.floor(Math.random() * services.length)];
+            
+            // Format keyword nicely
+            let cleanKey = keywords.charAt(0).toUpperCase() + keywords.slice(1);
+
+            if (matchedService) {
+                // AGAR USER NE SERVICE KA NAAM LIKHA HAI (E.g. "I need IVR")
+                const specificReviews = [
+                    `Digital Smart Technology is absolutely the best agency for ${matchedService}! Their service is fast, reliable, and highly professional. ⭐⭐⭐⭐⭐`,
+                    `Maine inki ${matchedService} service use ki aur results shandaar rahe! Team ka support bahut accha hai. Highly recommended! 🚀🔥`,
+                    `If you are looking for top-notch ${matchedService}, look no further than Digital Smart Technology. Fantastic experience! 💯👍`,
+                    `Inka ${matchedService} ka setup aur delivery ekdum perfect hai. Business grow karne ke liye best digital partner! 🌟🌟🌟🌟🌟`,
+                    `Bahut hi badhiya experience raha! ${cleanKey} ke mamle me ye Jaipur ki best company hai. Thanks team! 🙌`
+                ];
+                return specificReviews[Math.floor(Math.random() * specificReviews.length)];
+            } else {
+                // AGAR USER NE SIRF TAAREEF KI HAI (E.g. "Good service", "Best")
+                const genericReviews = [
+                    `${cleanKey}! Digital Smart Technology ki team bahut professional hai. Specifically inki ${randomService} ne mere business ko bahut fayda diya. ⭐⭐⭐⭐⭐`,
+                    `Experience was absolutely ${cleanKey}. Agar aapko apne business ke liye ${randomService} ya koi bhi digital marketing service chahiye, toh inhi se lein! 🚀💯`,
+                    `Digital Smart Technology sach me best hai. "${cleanKey}" - yehi kahunga main inke baare me. Very happy with their ${randomService} results! 🔥👍`,
+                    `Great work! I experienced ${cleanKey} from their side. Unka ${randomService} aur customer support ekdum top class hai. 🌟🌟🌟🌟🌟`,
+                    `${cleanKey} aur fast response! Main sabko recommend karunga ki wo inki ${randomService} ek baar zaroor try karein. Excellent agency in Jaipur! 🙌✨`
+                ];
+                return genericReviews[Math.floor(Math.random() * genericReviews.length)];
             }
         }
 
-        async function generateAIReview() {
+        function generateAIReview() {
             const keywordsInput = document.getElementById('keywords');
             const keywords = keywordsInput.value.trim();
-            const errorMsg = document.getElementById('errorMsg');
             
             if (!keywords) {
                 keywordsInput.classList.add('border-red-500');
@@ -138,58 +168,19 @@
             }
 
             document.getElementById('step1').classList.add('hidden');
-            errorMsg.classList.add('hidden');
             document.getElementById('loadingState').classList.remove('hidden');
 
-            const prompt = `Write a glowing, authentic 5-star customer review (max 3 short sentences) for 'Digital Smart Technology' based on these keywords: "${keywords}". Include 1-2 relevant emojis. Do NOT include quotation marks. Make it sound like a real person wrote it casually in Hinglish or simple English.`;
-
-            // Using standard generation API call
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = { contents: [{ parts: [{ text: prompt }] }] };
-
-            try {
-                // If apiKey is empty (like in this environment), we use a fallback array of good reviews
-                // Kyunki main directly open environment me apni master key nahi chhod sakta.
-                if(!apiKey) {
-                    throw new Error("Local fallback required");
-                }
-                
-                const data = await fetchWithRetry(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                let generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (generatedText) {
-                    showResult(generatedText);
-                } else {
-                    throw new Error("No text generated");
-                }
-            } catch (error) {
-                // FALLBACK SYSTEM: Agar Tiiny Host par API block hoti hai, toh ye best reviews khud de dega!
-                console.log("Using smart offline fallback");
-                const fallbacks = [
-                    `Digital Smart Technology ki service bahut shandaar hai! "${keywords}" ke mamle mein inka koi jawab nahi. Highly recommended! ⭐⭐⭐⭐⭐`,
-                    `Maine recently inki services use ki aur experience bahut badhiya raha. "${keywords}" ekdum top notch thi. Thanks team! 🙌🔥`,
-                    `Agar aapko best results chahiye toh inke paas zaroor jayein. "${keywords}" ekdum perfect tha. 5 stars from my side! 💯💯`,
-                    `Very professional and quick! "${keywords}" se main bahut impress hua. Best marketing agency in Jaipur. 🌟🌟🌟🌟🌟`
-                ];
-                const randomReview = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-                
-                // Chhota sa delay dikhane ke liye ki AI soch raha hai
-                setTimeout(() => {
-                    showResult(randomReview);
-                }, 1500);
-            }
+            // Simulate AI thinking time for 1.5 seconds
+            setTimeout(() => {
+                const finalReview = smartOfflineAI(keywords);
+                showResult(finalReview);
+            }, 1500);
         }
 
         function showResult(text) {
-            text = text.replace(/^["']|["']$/g, '');
             document.getElementById('loadingState').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
-            document.getElementById('reviewText').value = text.trim();
+            document.getElementById('reviewText').value = text;
         }
 
         function showToast(msg) {
@@ -203,18 +194,35 @@
 
         function copyAndGoToGoogle() {
             const textarea = document.getElementById('reviewText');
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textarea.value).then(() => {
+                    executeRedirect();
+                }).catch(err => {
+                    fallbackCopy(textarea);
+                });
+            } else {
+                fallbackCopy(textarea);
+            }
+        }
+
+        function fallbackCopy(textarea) {
             textarea.select();
             textarea.setSelectionRange(0, 99999); 
             try {
                 document.execCommand('copy');
-                showToast("✅ Copied! Ab Google par 'Paste' karein.");
-                setTimeout(() => {
-                    window.open(MY_REAL_GOOGLE_LINK, '_blank');
-                }, 1500);
+                executeRedirect();
             } catch (err) {
                 alert("Text copy nahi ho paya. Kripya daba kar manual copy karein aur phir Google par jayein.");
                 window.open(MY_REAL_GOOGLE_LINK, '_blank');
             }
+        }
+
+        function executeRedirect() {
+            showToast("✅ Copied! Ab Google par 'Paste' karein.");
+            setTimeout(() => {
+                window.open(MY_REAL_GOOGLE_LINK, '_blank');
+            }, 1500);
         }
 
         function resetApp() {
@@ -231,8 +239,8 @@
                     const currentUrl = window.location.href;
                     new QRCode(document.getElementById("qrcode"), {
                         text: currentUrl,
-                        width: 200,
-                        height: 200,
+                        width: 220,
+                        height: 220,
                         colorDark : "#1d4ed8", 
                         colorLight : "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
@@ -254,3 +262,9 @@
     <style>
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+    </style>
+</body>
+</html>
+
+
+```
